@@ -9,7 +9,7 @@ local HttpService: HttpService = cloneref(game:GetService("HttpService"))
 local isfolder, isfile, listfiles = isfolder, isfile, listfiles
 
 if typeof(clonefunction) == "function" then
-    -- Fix is_____ functions for shitsploits, those functions should never error, only return a boolean.
+    -- 修复 is_____ 函数，使其在劣质执行器中永不报错，只返回布尔值
 
     local
         isfolder_copy,
@@ -127,7 +127,7 @@ function ThemeManager:SetLibrary(Library)
     ThemeManager.Library = Library
 end
 
---// Helpers \\--
+--// 辅助函数 \\--
 local function Trim(Text: string)
     return Text:match("^%s*(.-)%s*$")
 end
@@ -144,7 +144,7 @@ local function IsValidFolderPath(Name: string): boolean
     )
 end
 
---// Folder helper \\--
+--// 文件夹辅助函数 \\--
 local function SplitPath(Path: string): {string}
 	local Result = {}
 	local Current = ""
@@ -167,7 +167,7 @@ end
 
 local GetCurrentThemesPath = GetFolderPath
 
---// Files helper \\--
+--// 文件辅助函数 \\--
 local function GetThemePath(ThemeName: string): false | string
     local CurrentThemesPath = GetCurrentThemesPath()
     return if CurrentThemesPath == false then false else string.format("%s/%s.json", CurrentThemesPath, ThemeName)
@@ -187,7 +187,7 @@ local function GetDefaultThemePath(): false | string
     return if CurrentThemesPath == false then false else string.format("%s/default.txt", CurrentThemesPath)
 end
 
---// Folders \\--
+--// 文件夹管理 \\--
 function ThemeManager:GetPaths(): {string}
     local FolderPath = GetFolderPath()
     return if FolderPath == false then {} else SplitPath(FolderPath)
@@ -219,13 +219,13 @@ function ThemeManager:CheckFolderTree()
 end
 
 function ThemeManager:SetFolder(Folder: string)
-    assert(IsValidFolderPath(Folder), "Invalid path provided")
+    assert(IsValidFolderPath(Folder), "无效的路径")
 
     ThemeManager.Folder = Folder
     ThemeManager:BuildFolderTree()
 end
 
---// Theme Management \\--
+--// 主题管理 \\--
 function ThemeManager:ReloadCustomThemes()
     local SettingsPath = GetCurrentThemesPath()
     if SettingsPath == false then
@@ -234,7 +234,7 @@ function ThemeManager:ReloadCustomThemes()
 
     local SuccessList, Files = pcall(listfiles, SettingsPath)
     if not (SuccessList and typeof(Files) == "table") then
-        ThemeManager.Library:Notify(string.format("Failed to load theme list: %s", tostring(Files)))
+        ThemeManager.Library:Notify(string.format("加载主题列表失败：%s", tostring(Files)))
         return {}
     end
 
@@ -278,16 +278,16 @@ end
 
 function ThemeManager:SaveCustomTheme(ThemeName: string): any
     if IsStringEmpty(ThemeName) then
-        return false, "Invalid theme name provided"
+        return false, "无效的主题名称"
     end
 
     if string.lower(ThemeName) == "default" then
-        return false, "Invalid theme name provided"
+        return false, "无效的主题名称"
     end
 
     local ThemePath = GetThemePath(ThemeName)
     if ThemePath == false then
-        return false, "Invalid theme name provided"
+        return false, "无效的主题名称"
     end
 
     ThemeManager:CheckFolderTree()
@@ -304,12 +304,12 @@ function ThemeManager:SaveCustomTheme(ThemeName: string): any
 
     local SuccessEncode, EncodedData = pcall(HttpService.JSONEncode, HttpService, ThemeData)
     if not SuccessEncode then
-        return false, "Failed to encode data"
+        return false, "数据编码失败"
     end
 
     local SuccessWrite, ErrorMessage = pcall(writefile, ThemePath, EncodedData)
     if not SuccessWrite then
-        return false, "Failed to write theme file: " .. tostring(ErrorMessage)
+        return false, "写入主题文件失败：" .. tostring(ErrorMessage)
     end
 
     return true
@@ -317,17 +317,17 @@ end
 
 function ThemeManager:Delete(ThemeName: string): (boolean | string?)
     if IsStringEmpty(ThemeName) then
-        return false, "No theme is selected"
+        return false, "未选择任何主题"
     end
 
     local ThemePath = GetThemePath(ThemeName)
     if ThemePath == false or not isfile(ThemePath) then
-        return false, "Theme file does not exist"
+        return false, "主题文件不存在"
     end
 
     local SuccessDelete, ErrorMessage = pcall(delfile, ThemePath)
     if not SuccessDelete then
-        return false, "Failed to delete theme file: " .. tostring(ErrorMessage)
+        return false, "删除主题文件失败：" .. tostring(ErrorMessage)
     end
 
     if ThemeName == ThemeManager.DefaultThemeName then
@@ -337,17 +337,17 @@ function ThemeManager:Delete(ThemeName: string): (boolean | string?)
     return true
 end
 
---// Default Theme \\--
+--// 默认主题 \\--
 function ThemeManager:GetDefaultTheme(): (string, boolean, string?)
     ThemeManager:CheckFolderTree()
 
     local DefaultThemePath = GetDefaultThemePath()
     if DefaultThemePath == false then
-        return "none", false, "Invalid path provided"
+        return "none", false, "无效的路径"
     end
 
     if not isfile(DefaultThemePath) then
-        return "none", false, "Default theme is not set"
+        return "none", false, "未设置默认主题"
     end
 
     local SuccessRead, DefaultThemeName = pcall(readfile, DefaultThemePath)
@@ -357,7 +357,7 @@ function ThemeManager:GetDefaultTheme(): (string, boolean, string?)
 
     local ConfigExists = DoesThemeExist(DefaultThemeName, true)
     if not ConfigExists then
-        return "none", false, "Theme file not found"
+        return "none", false, "主题文件未找到"
     end
 
     ThemeManager.DefaultThemeName = DefaultThemeName
@@ -365,8 +365,8 @@ function ThemeManager:GetDefaultTheme(): (string, boolean, string?)
 end
 
 function ThemeManager:SetDefaultTheme(Theme: any)
-    assert(ThemeManager.Library, "Library is not set, call ThemeManager:SetLibrary(Library) first.")
-    assert(not ThemeManager.AppliedToTab, "Cannot set default theme after applying ThemeManager to a tab!")
+    assert(ThemeManager.Library, "未设置库实例，请先调用 ThemeManager:SetLibrary(Library)")
+    assert(not ThemeManager.AppliedToTab, "将 ThemeManager 应用到标签页后无法再设置默认主题")
 
     local Library = ThemeManager.Library
     local DefaultThemeData = ThemeManager.BuiltInThemes["Default"][2]
@@ -393,7 +393,7 @@ function ThemeManager:SetDefaultTheme(Theme: any)
         end
     end
 
-    --// Font
+    --// 字体
     local FontFace = Theme["FontFace"]
     local FontFaceType = typeof(FontFace)
     
@@ -410,12 +410,12 @@ function ThemeManager:SetDefaultTheme(Theme: any)
         FinalTheme.FontFace = "Code"
     end
 
-    --// Default Scheme Colors
+    --// 默认配色方案颜色
     for _, DefaultSchemeColor in { "RedColor", "DestructiveColor", "DarkColor", "WhiteColor" } do
         LibraryScheme[DefaultSchemeColor] = Library.Scheme[DefaultSchemeColor]
     end
 
-    --// Apply
+    --// 应用
     Library.Scheme = LibraryScheme
     ThemeManager.BuiltInThemes["Default"] = { 1, FinalTheme }
 
@@ -424,18 +424,18 @@ end
 
 function ThemeManager:SaveDefault(ThemeName: string): (boolean, string?)
     if IsStringEmpty(ThemeName) then
-        return false, "No theme is selected"
+        return false, "未选择任何主题"
     end
 
     ThemeManager:CheckFolderTree()
 
     local DefaultThemePath = GetDefaultThemePath()
     if DefaultThemePath == false then
-        return false, "Invalid path provided"
+        return false, "无效的路径"
     end
 
     if not DoesThemeExist(ThemeName, true) then
-        return false, "Theme does not exist"
+        return false, "主题不存在"
     end
 
     local SuccessWrite, ErrorMessage = pcall(writefile, DefaultThemePath, ThemeName)
@@ -450,8 +450,8 @@ end
 function ThemeManager:LoadDefault()
     local ThemeName, Success, FetchErrorMessage = ThemeManager:GetDefaultTheme()
     if not Success or FetchErrorMessage then
-        if FetchErrorMessage ~= "Default theme is not set" then
-            ThemeManager.Library:Notify(string.format("Failed to apply default theme: %s", FetchErrorMessage))
+        if FetchErrorMessage ~= "未设置默认主题" then
+            ThemeManager.Library:Notify(string.format("应用默认主题失败：%s", FetchErrorMessage))
         end
 
         return
@@ -464,11 +464,11 @@ function ThemeManager:LoadDefault()
 
     local SuccessLoad, LoadErrorMessage = ThemeManager:ApplyTheme(ThemeName)
     if not SuccessLoad then
-        ThemeManager.Library:Notify(string.format("Failed to apply default theme: %s", LoadErrorMessage))
+        ThemeManager.Library:Notify(string.format("应用默认主题失败：%s", LoadErrorMessage))
         return
     end
 
-    ThemeManager.Library:Notify(string.format("Successfully applied default theme %q", ThemeName))
+    ThemeManager.Library:Notify(string.format("成功应用默认主题：%q", ThemeName))
 end
 
 function ThemeManager:DeleteDefaultTheme(): (boolean, string?)
@@ -476,11 +476,11 @@ function ThemeManager:DeleteDefaultTheme(): (boolean, string?)
 
     local DefaultThemePath = GetDefaultThemePath()
     if DefaultThemePath == false then
-        return false, "Invalid path provided"
+        return false, "无效的路径"
     end
 
     if not isfile(DefaultThemePath) then
-        return false, "Default theme is not set"
+        return false, "未设置默认主题"
     end
 
     local SuccessDelete, ErrorMessage = pcall(delfile, DefaultThemePath)
@@ -492,7 +492,7 @@ function ThemeManager:DeleteDefaultTheme(): (boolean, string?)
     return true
 end
 
---// Apply Theme \\--
+--// 应用主题 \\--
 function ThemeManager:ThemeUpdate()
     local Library = ThemeManager.Library
 
@@ -508,14 +508,14 @@ end
 
 function ThemeManager:ApplyTheme(ThemeName: string)
     if IsStringEmpty(ThemeName) then
-        return false, "No theme is selected"
+        return false, "未选择任何主题"
     end
 
     local CustomThemeData = ThemeManager:GetCustomTheme(ThemeName)
     local Data = CustomThemeData or ThemeManager.BuiltInThemes[ThemeName]
     
     if not Data then
-        return false, "Theme not found"
+        return false, "未找到主题"
     end
     
     local Library = ThemeManager.Library
@@ -550,7 +550,7 @@ function ThemeManager:ApplyTheme(ThemeName: string)
     return true
 end
 
---// GUI \\--
+--// 图形界面 \\--
 local function ShowDialog(
     Condition: () -> boolean,
 
@@ -572,7 +572,7 @@ local function ShowDialog(
 
         FooterButtons = {
             Cancel = {
-                Title = "Cancel",
+                Title = "取消",
                 Variant = "Ghost",
                 Order = 1,
                 Callback = function(Dialog)
@@ -594,7 +594,7 @@ local function ShowDialog(
 end
 
 function ThemeManager:CreateThemeManager(Themesbox: any)
-    assert(ThemeManager.Library, "Library is not set, call ThemeManager:SetLibrary(Library) first.")
+    assert(ThemeManager.Library, "未设置库实例，请先调用 ThemeManager:SetLibrary(Library)")
 
     local BuiltInThemesNames = {}
     for Name, _ThemeData in ThemeManager.BuiltInThemes do
@@ -612,7 +612,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     local function RefreshDefaultThemeLabel()
         local DefaultThemeName, _Success, _ErrorMessage = ThemeManager:GetDefaultTheme()
 
-        DefaultThemeLabel:SetText(string.format("Current default theme: %s", DefaultThemeName))
+        DefaultThemeLabel:SetText(string.format("当前默认主题：%s", DefaultThemeName))
         if CustomThemeList then RefreshList() end
     end
 
@@ -628,14 +628,14 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
         return ThemeManager.Library.Options[SchemeIndex]
     end
 
-    local BackgroundColor = CreateColorOption("Background color", "BackgroundColor")
-    local MainColor = CreateColorOption("Main color", "MainColor")
-    local AccentColor = CreateColorOption("Accent color", "AccentColor")
-    local OutlineColor = CreateColorOption("Outline color", "OutlineColor")
-    local FontColor = CreateColorOption("Font color", "FontColor")
+    local BackgroundColor = CreateColorOption("背景颜色", "BackgroundColor")
+    local MainColor = CreateColorOption("主色", "MainColor")
+    local AccentColor = CreateColorOption("强调色", "AccentColor")
+    local OutlineColor = CreateColorOption("边框颜色", "OutlineColor")
+    local FontColor = CreateColorOption("字体颜色", "FontColor")
     
     Themesbox:AddDropdown("FontFace", {
-        Text = "Font Face",
+        Text = "字体",
         Default = "Code",
         
         Values = { "BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans" },
@@ -644,7 +644,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     })
     
     Themesbox:AddInput("BackgroundImage", { 
-        Text = "Background Image",
+        Text = "背景图片",
 
         Default = "",
         Finished = true,
@@ -655,7 +655,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     Themesbox:AddDivider()
 
     Themesbox:AddDropdown("ThemeManager_ThemeList", { 
-        Text = "Theme list", 
+        Text = "主题列表", 
 
         Values = BuiltInThemesNames,
         AllowNull = true,
@@ -663,43 +663,43 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
 
         FormatDisplayValue = function(Value: any)
             if Value ~= "Default" and Value == ThemeManager.DefaultThemeName then
-                return string.format("%s (default)", Value)
+                return string.format("%s (默认)", Value)
             end
 
             return Value
         end,
         FormatListValue = function(Value: any)
             if Value ~= "Default" and Value == ThemeManager.DefaultThemeName then
-                return string.format("%s (default)", Value)
+                return string.format("%s (默认)", Value)
             end
 
             return Value
         end
     })
 
-    Themesbox:AddButton("Set as default", function()
+    Themesbox:AddButton("设为默认", function()
         local ThemeName = ThemeList.Value
         ThemeManager:SaveDefault(ThemeName)
 
-        ThemeManager.Library:Notify(string.format("Successfully set default theme to %q", ThemeName))
+        ThemeManager.Library:Notify(string.format("成功将默认主题设为：%q", ThemeName))
         RefreshDefaultThemeLabel()
     end)
 
     Themesbox:AddDivider()
 
     CustomThemeName = Themesbox:AddInput("ThemeManager_CustomThemeName", { 
-        Text = "Custom theme name" 
+        Text = "自定义主题名称" 
     })
 
-    Themesbox:AddButton("Create theme", function()
+    Themesbox:AddButton("创建主题", function()
         local Name = CustomThemeName.Value
         if IsStringEmpty(Name) then
-            ThemeManager.Library:Notify("Theme name cannot be empty.")
+            ThemeManager.Library:Notify("主题名称不能为空")
             return
         end
 
         if string.lower(Name) == "default" then
-            ThemeManager.Library:Notify("Invalid theme name provided.")
+            ThemeManager.Library:Notify("无效的主题名称")
             return
         end
 
@@ -709,18 +709,18 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
             end,
 
             "ThemeManager_CreateTheme",
-            "Theme already exists",
-            string.format("A custom theme named %q already exists. Overwriting it will replace it with your current colors.", Name),
+            "主题已存在",
+            string.format("名为 %q 的自定义主题已存在。覆盖将用您当前的颜色替换它。", Name),
 
-            "Overwrite",
+            "覆盖",
             function()
                 local Success, ErrorMessage = ThemeManager:SaveCustomTheme(Name)
                 if not Success then
-                    ThemeManager.Library:Notify(string.format("Failed to create theme %q: %s", Name, ErrorMessage))
+                    ThemeManager.Library:Notify(string.format("创建主题 %q 失败：%s", Name, ErrorMessage))
                     return
                 end
 
-                ThemeManager.Library:Notify(string.format("Successfully created theme %q", Name))
+                ThemeManager.Library:Notify(string.format("成功创建主题：%q", Name))
                 RefreshList()
             end
         )
@@ -729,7 +729,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     Themesbox:AddDivider()
 
     CustomThemeList = Themesbox:AddDropdown("ThemeManager_CustomThemeList", { 
-        Text = "Custom themes",
+        Text = "自定义主题",
 
         Values = ThemeManager:ReloadCustomThemes(), 
         AllowNull = true,
@@ -737,35 +737,35 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
 
         FormatDisplayValue = function(Value: any)
             if Value == ThemeManager.DefaultThemeName then
-                return string.format("%s (default)", Value)
+                return string.format("%s (默认)", Value)
             end
 
             return Value
         end,
         FormatListValue = function(Value: any)
             if Value == ThemeManager.DefaultThemeName then
-                return string.format("%s (default)", Value)
+                return string.format("%s (默认)", Value)
             end
 
             return Value
         end
     })
 
-    Themesbox:AddButton("Load theme", function()
+    Themesbox:AddButton("加载主题", function()
         local Name = CustomThemeList.Value
         if IsStringEmpty(Name) then
-            ThemeManager.Library:Notify("Please select a theme first.")
+            ThemeManager.Library:Notify("请先选择一个主题")
             return
         end
 
         ThemeManager:ApplyTheme(Name)
-        ThemeManager.Library:Notify(string.format("Successfully loaded theme %q", Name))
+        ThemeManager.Library:Notify(string.format("成功加载主题：%q", Name))
     end)
 
-    Themesbox:AddButton("Overwrite theme", function()
+    Themesbox:AddButton("覆盖主题", function()
         local Name = CustomThemeList.Value
         if IsStringEmpty(Name) then
-            ThemeManager.Library:Notify("Please select a theme first.")
+            ThemeManager.Library:Notify("请先选择一个主题")
             return
         end
 
@@ -775,21 +775,21 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
             end,
 
             "ThemeManager_OverwriteTheme",
-            "Overwrite theme",
-            string.format("Are you sure you want to overwrite %q with your current colors? This cannot be undone.", Name),
+            "覆盖主题",
+            string.format("确定要用当前颜色覆盖 %q 吗？此操作无法撤销。", Name),
 
-            "Overwrite",
+            "覆盖",
             function()
                 ThemeManager:SaveCustomTheme(Name)
-                ThemeManager.Library:Notify(string.format("Successfully overwrote theme %q", Name))
+                ThemeManager.Library:Notify(string.format("成功覆盖主题：%q", Name))
             end
         )
     end)
 
-    Themesbox:AddButton("Delete theme", function()
+    Themesbox:AddButton("删除主题", function()
         local Name = CustomThemeList.Value
         if IsStringEmpty(Name) then
-            ThemeManager.Library:Notify("Please select a theme first.")
+            ThemeManager.Library:Notify("请先选择一个主题")
             return
         end
 
@@ -799,64 +799,64 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
             end,
 
             "ThemeManager_DeleteTheme",
-            "Delete theme",
-            string.format("Are you sure you want to delete %q? This cannot be undone.", Name),
+            "删除主题",
+            string.format("确定要删除 %q 吗？此操作无法撤销。", Name),
             
-            "Delete",
+            "删除",
             function()
                 local Success, ErrorMessage = ThemeManager:Delete(Name)
                 if not Success then
-                    ThemeManager.Library:Notify(string.format("Failed to delete theme: %s", ErrorMessage))
+                    ThemeManager.Library:Notify(string.format("删除主题失败：%s", ErrorMessage))
                     return
                 end
 
-                ThemeManager.Library:Notify(string.format("Successfully deleted theme %q", Name))
+                ThemeManager.Library:Notify(string.format("成功删除主题：%q", Name))
                 RefreshDefaultThemeLabel()
             end
         )
     end)
 
-    Themesbox:AddButton("Refresh list", RefreshList)
+    Themesbox:AddButton("刷新列表", RefreshList)
 
-    Themesbox:AddButton("Set as default", function()
+    Themesbox:AddButton("设为默认", function()
         local Name = CustomThemeList.Value
         if IsStringEmpty(Name) then
-            ThemeManager.Library:Notify("Please select a theme first.")
+            ThemeManager.Library:Notify("请先选择一个主题")
             return
         end
 
         ThemeManager:SaveDefault(Name)
-        ThemeManager.Library:Notify(string.format("Successfully set default theme to %q", Name))
+        ThemeManager.Library:Notify(string.format("成功将默认主题设为：%q", Name))
         RefreshDefaultThemeLabel()
     end)
 
-    Themesbox:AddButton("Reset default", function()
+    Themesbox:AddButton("重置默认", function()
         ShowDialog(
             function(): boolean
                 return true
             end,
 
             "ThemeManager_ResetDefault",
-            "Reset default theme",
-            "Are you sure you want to clear the default theme? The library will revert to its built-in default on next load.",
+            "重置默认主题",
+            "确定要清除默认主题吗？下次加载时库将恢复为内置默认主题。",
             
-            "Reset",
+            "重置",
             function()
                 local Success, ErrorMessage = ThemeManager:DeleteDefaultTheme()
                 if not Success then
-                    ThemeManager.Library:Notify(string.format("Failed to reset default theme: %s", ErrorMessage))
+                    ThemeManager.Library:Notify(string.format("重置默认主题失败：%s", ErrorMessage))
                     return
                 end
 
-                ThemeManager.Library:Notify("Successfully reset default theme.")
+                ThemeManager.Library:Notify("成功重置默认主题")
                 RefreshDefaultThemeLabel()
             end
         )
     end)
 
-    DefaultThemeLabel = Themesbox:AddLabel("Current default theme: ...", true);
+    DefaultThemeLabel = Themesbox:AddLabel("当前默认主题：...", true);
 
-    --// Set Variables
+    --// 设置变量
     CustomThemeList, CustomThemeName, ThemeList, FontFace, BackgroundImage =
         ThemeManager.Library.Options.ThemeManager_CustomThemeList,
         ThemeManager.Library.Options.ThemeManager_CustomThemeName,
@@ -864,7 +864,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
         ThemeManager.Library.Options.FontFace,
         ThemeManager.Library.Options.BackgroundImage;
 
-    --// Handlers
+    --// 事件处理
     ThemeList:OnChanged(function()
         ThemeManager:ApplyTheme(ThemeList.Value)
     end)
@@ -881,7 +881,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     FontFace:OnChanged(function(Value) ThemeManager.Library:SetFont(Enum.Font[Value]) end)
     BackgroundImage:OnChanged(function(Value) ThemeManager.Library:SetBackgroundImage(Value) end)
 
-    --// Load default
+    --// 加载默认主题
     ThemeManager:LoadDefault()
     ThemeManager.AppliedToTab = true
     RefreshDefaultThemeLabel()
@@ -890,7 +890,7 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
 end
 
 function ThemeManager:CreateGroupBox(Tab: any, IconName: string)
-    return Tab:AddLeftGroupbox("Themes", IconName or "paintbrush")
+    return Tab:AddLeftGroupbox("主题", IconName or "paintbrush")
 end
 
 function ThemeManager:ApplyToTab(Tab: any, IconName: string)
