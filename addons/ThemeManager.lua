@@ -46,10 +46,10 @@ local ThemeManager = {
     AppliedToTab = false,
     DefaultThemeName = nil,
 
-["Default"] = {
-    1,
-    { FontColor = "ffffff", MainColor = "a3a3a3", AccentColor = "ffffff", BackgroundColor = "9098a1", OutlineColor = "000000", BackgroundImage = "", FontFace = "RobotoMono" },
-},
+        ["Default"] = {
+            1,
+            { FontColor = "ffffff", MainColor = "a3a3a3", AccentColor = "ffffff", BackgroundColor = "9098a1", OutlineColor = "000000", BackgroundImage = "" },
+        },
         ["Fatality"] = {
             3,
             { FontColor = "ffffff", MainColor = "1e1842", AccentColor = "c50754", BackgroundColor = "191335", OutlineColor = "3c355d", BackgroundImage = "" },
