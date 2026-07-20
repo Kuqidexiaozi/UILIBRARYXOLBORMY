@@ -1,2 +1,0 @@
-# UILIBRARYXOLBORMY
-Obsidian Library
