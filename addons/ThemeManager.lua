@@ -46,15 +46,10 @@ local ThemeManager = {
     AppliedToTab = false,
     DefaultThemeName = nil,
 
-    BuiltInThemes = {
-        ["Default"] = {
-            1,
-            { FontColor = "ffffff", MainColor = "191919", AccentColor = "7d55ff", BackgroundColor = "0f0f0f", OutlineColor = "282828", BackgroundImage = "" },
-        },
-        ["BBot"] = {
-            2,
-            { FontColor = "ffffff", MainColor = "1e1e1e", AccentColor = "7e48a3", BackgroundColor = "232323", OutlineColor = "141414", BackgroundImage = "" },
-        },
+["Default"] = {
+    1,
+    { FontColor = "ffffff", MainColor = "a3a3a3", AccentColor = "ffffff", BackgroundColor = "9098a1", OutlineColor = "000000", BackgroundImage = "", FontFace = "RobotoMono" },
+},
         ["Fatality"] = {
             3,
             { FontColor = "ffffff", MainColor = "1e1842", AccentColor = "c50754", BackgroundColor = "191335", OutlineColor = "3c355d", BackgroundImage = "" },
